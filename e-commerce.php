@@ -124,3 +124,148 @@ function displayProduct($product) {
 
   echo "<input type='submit' name='add_to
 
+<?php
+
+// Connect to database
+
+$servername = "localhost";
+
+$username = "username";
+
+$password = "password";
+
+$dbname = "database_name";
+
+$conn = mysqli_connect($servername, $username, $password, $dbname);
+
+if (!$conn) {
+
+  die("Connection failed: " . mysqli_connect_error());
+
+}
+
+// Function to get a page by slug
+
+function getPageBySlug($slug) {
+
+  global $conn;
+
+  $sql = "SELECT * FROM pages WHERE slug='$slug'";
+
+  $result = mysqli_query($conn, $sql);
+
+  $page = mysqli_fetch_assoc($result);
+
+  return $page;
+
+}
+
+// Function to display a page
+
+function displayPage($page) {
+
+  echo "<h2>" . $page['title'] . "</h2>";
+
+  echo "<p>" . $page['content'] . "</p>";
+
+}
+
+// Check if the user is logged in
+
+session_start();
+
+if (!isset($_SESSION['user'])) {
+
+  $_SESSION['user'] = array();
+
+}
+
+// Function to log in a user
+
+function login($username, $password) {
+
+  global $conn;
+
+  $sql = "SELECT * FROM users WHERE username='$username' AND password='$password'";
+
+  $result = mysqli_query($conn, $sql);
+
+  $user = mysqli_fetch_assoc($result);
+
+  if ($user) {
+
+    $_SESSION['user'] = $user;
+
+    header("Location: admin.php");
+
+    exit;
+
+  } else {
+
+    echo "<p class='error'>Invalid username or password</p>";
+
+  }
+
+}
+
+// Function to log out a user
+
+function logout() {
+
+  session_destroy();
+
+  header("Location: index.php");
+
+  exit;
+
+}
+
+// Function to add a page
+
+function addPage($title, $slug, $content) {
+
+  global $conn;
+
+  $sql = "INSERT INTO pages (title, slug, content) VALUES ('$title', '$slug', '$content')";
+
+  mysqli_query($conn, $sql);
+
+  header("Location: admin.php");
+
+  exit;
+
+}
+
+// Function to update a page
+
+function updatePage($id, $title, $slug, $content) {
+
+  global $conn;
+
+  $sql = "UPDATE pages SET title='$title', slug='$slug', content='$content' WHERE id='$id'";
+
+  mysqli_query($conn, $sql);
+
+  header("Location: admin.php");
+
+  exit;
+
+}
+
+// Function to delete a page
+
+function deletePage($id) {
+
+  global $conn;
+
+  $sql = "DELETE FROM pages WHERE id='$id'";
+
+  mysqli_query($conn, $sql);
+
+  header("Location: admin.php");
+
+  exit;
+
+}
+
+// Display pages for non-logged in
